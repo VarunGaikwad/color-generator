@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ColorCell from "./components/ColorCell";
 import Popup from "./components/Popup";
 
@@ -7,7 +7,7 @@ export default function App() {
   const onGenerateColorPaletteClick = () => {
       setPalette(onGenerateColorPalette());
     },
-    onGenerateColorPalette = () => {
+    onGenerateColorPalette = useCallback(() => {
       const newPalette = [],
         baseHue = Math.floor(Math.random() * 360);
 
@@ -20,7 +20,7 @@ export default function App() {
         newPalette.push({ color: hexColor, id: i + 1 });
       }
       return [...newPalette];
-    },
+    }, []),
     _hslToRgb = (h, s, l) => {
       s /= 100;
       l /= 100;
@@ -87,6 +87,14 @@ export default function App() {
         setIsPopVisible(false);
       }, 1000);
     };
+
+  useEffect(() => {
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") setIsPopVisible(false);
+      if (e.key === " ") setPalette(onGenerateColorPalette());
+    });
+  }, [onGenerateColorPalette]);
+
   return (
     <div className="grid min-h-screen w-screen place-content-center text-center bg-neutral-300">
       <div>
@@ -103,17 +111,23 @@ export default function App() {
             />
           ))}
         </div>
-        <button
-          onClick={onGenerateColorPaletteClick}
-          className="mt-5 px-20 text-stone-50 font-bold py-4 rounded opacity-80 hover:opacity-100 transition-all duration-300 hover:rounded-3xl hover:scale-110"
-          style={{
-            backgroundColor: `${blendColors(
-              palette.map((color) => color.color)
-            )}`,
-          }}
-        >
-          Generate Palette
-        </button>
+        <div className="flex flex-col gap-4 items-center">
+          <button
+            onClick={onGenerateColorPaletteClick}
+            className="mt-5 px-20 text-stone-50 font-bold py-4 rounded opacity-80 hover:opacity-100 transition-all duration-300 hover:rounded-3xl hover:scale-110"
+            style={{
+              backgroundColor: `${blendColors(
+                palette.map((color) => color.color)
+              )}`,
+            }}
+          >
+            Generate Palette
+          </button>
+          <span>
+            Or just press the <q>Spacebar</q>
+            to generate new palette.
+          </span>
+        </div>
       </div>
     </div>
   );
