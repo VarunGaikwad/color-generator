@@ -86,6 +86,17 @@ export default function App() {
       timeout = setTimeout(() => {
         setIsPopVisible(false);
       }, 1000);
+    },
+    contrastingTextColor = (bgHex) => {
+      bgHex = bgHex.replace("#", "");
+
+      let r = parseInt(bgHex.substring(0, 2), 16);
+      let g = parseInt(bgHex.substring(2, 4), 16);
+      let b = parseInt(bgHex.substring(4, 6), 16);
+
+      let brightness = (r * 299 + g * 587 + b * 114) / 1000;
+
+      return brightness > 125 ? "#000000" : "#FFFFFF";
     };
 
   useEffect(() => {
@@ -116,9 +127,10 @@ export default function App() {
             onClick={onGenerateColorPaletteClick}
             className="mt-5 px-20 text-stone-50 font-bold py-4 rounded opacity-80 hover:opacity-100 transition-all duration-300 hover:rounded-3xl hover:scale-110"
             style={{
-              backgroundColor: `${blendColors(
-                palette.map((color) => color.color)
-              )}`,
+              backgroundColor: blendColors(palette.map((color) => color.color)),
+              color: contrastingTextColor(
+                blendColors(palette.map((color) => color.color))
+              ),
             }}
           >
             Generate Palette
