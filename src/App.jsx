@@ -1,6 +1,8 @@
 import { useState } from "react";
 import ColorCell from "./components/ColorCell";
+import Popup from "./components/Popup";
 
+let timeout;
 export default function App() {
   const onGenerateColorPaletteClick = () => {
       setPalette(onGenerateColorPalette());
@@ -72,16 +74,33 @@ export default function App() {
       const avgB = Math.round(totalB / numColors);
 
       return rgbToHex(avgR, avgG, avgB);
+    },
+    [copiedColor, setCopiedColor] = useState(""),
+    [isPopVisible, setIsPopVisible] = useState(false),
+    onCellClick = (color) => {
+      if (timeout) clearTimeout(timeout);
+
+      navigator.clipboard.writeText(color);
+      setCopiedColor(color);
+      setIsPopVisible(true);
+      timeout = setTimeout(() => {
+        setIsPopVisible(false);
+      }, 1000);
     };
   return (
-    <div className="grid min-h-screen w-screen place-content-center text-center bg-neutral-100">
+    <div className="grid min-h-screen w-screen place-content-center text-center bg-neutral-300">
       <div>
+        {isPopVisible && <Popup colorCode={copiedColor} />}
         <span className="text-3xl font-bold capitalize">
           Color palette generator
         </span>
-        <div className="flex flex-wrap gap-4 justify-center mt-5">
+        <div className="flex flex-wrap gap-4 md:gap-10 justify-center mt-5">
           {palette.map((color) => (
-            <ColorCell key={color.id} color={color.color} />
+            <ColorCell
+              key={color.id}
+              color={color.color}
+              onCellClick={onCellClick}
+            />
           ))}
         </div>
         <button
